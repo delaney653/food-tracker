@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<head>
+    <meta charset="UTF-8">
+    <title>Food Tracker</title>
+</head>
+<body style="background-color: powderblue; font-family: Arial, sans-serif;">
+    <div style="margin-top: 45px;">
+        <center><h1>ˑ . 𖥔 . ݁₊ ⊹ . ݁ 「 ✦ Meal Tracker ✦ 」 ˑ . 𖥔 . ݁₊ ⊹ . ݁</h1></center>
+
+        <form action="/add" method="POST">
+            <div style="margin-bottom: 10px;">
+                 <label for="meal">Add a meal! </label>
+                <input type="text" name="meal" id= "meal" placeholder="Enter your food..." required>
+            </div>  
+             
+            <div style="margin-bottom: 10px;">
+                
+                <label for="rating">How would you describe this meal?</label>
+                <select name="rating" id="rating" required>
+                    <option value="">-- Select a rating --</option>
+                    {% for rating in ratings %}
+                        <option value="{{ rating }}">
+                            {{ rating }}
+                        </option>
+                    {% endfor %}
+                </select>
+                
+            </div>
+
+            <input type="submit" value="Add Meal">
+        </form>
+        <hr>
+
+        <center><h2>──── ୨ৎ Meal History ୨ৎ ──── </h2></center>
+        {% for meal in meal_list %}
+        <div>
+            <p>   • {{ meal.description }}: {{ meal.rating }}</p>
+
+            <form action="/delete/{{meal.id}}" method="POST">
+                <button type="submit">Delete</button>
+            </form>
+        </div>
+        {% endfor %}
+    </div>
+</body>
+</html>

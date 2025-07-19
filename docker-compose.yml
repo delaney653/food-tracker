@@ -1,0 +1,110 @@
+services:
+  proxy:
+    image: nginx:latest
+    ports: 
+    - "80:80"
+    networks:
+    - frontend
+    volumes:
+    - ./nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - backend
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    profiles: 
+    - production
+    - '' #used to start service  when 'docker compose up --build' is run
+
+  backend:
+    build: .
+    environment:
+      MYSQL_HOST: mysql
+      MYSQL_USER: root
+      MYSQL_PASSWORD: password
+      MYSQL_DB: meals
+    networks:
+      - backend
+      - frontend
+    depends_on:
+    - mysql
+    volumes:
+    - web-logs:/app/logs
+    command: ["python", "src/app.py"]
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    profiles:
+    - production
+    - ''
+  mysql:
+    image: mysql:latest
+    networks:
+      - backend
+    volumes:
+      - mysql-data:/var/lib/mysql
+      - ./schema.sql:/docker-entrypoint-initdb.d/01-schema.sql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: password
+      MYSQL_DATABASE: meals
+    
+    ports:
+      - "3306:3306"
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    profiles: 
+    - production
+    - ''
+   #testing services
+  backend-test:
+    build: .
+    environment:
+      ENV: testing
+    depends_on:
+      - mysql-test
+    networks:
+      - backend
+    volumes:
+      - .:/app
+    working_dir: /app
+    command: sh -c "pip install pytest-cov && pytest --junitxml=junit.xml --cov=. --cov-report=xml:coverage.xml --cov-fail-under=80 -v tests/"
+    profiles: ["testing"]
+
+  mysql-test:
+    image: mysql:latest
+    environment:
+      MYSQL_ROOT_PASSWORD: password
+      MYSQL_DATABASE: test_meals
+    volumes:
+      - ./schema.sql:/docker-entrypoint-initdb.d/01-schema.sql
+      - ./staging-init.sql:/docker-entrypoint-initdb.d/02-staging-init.sql
+    ports:
+      - "3307:3306"
+    tmpfs:
+      - /var/lib/mysql
+    networks:
+      - backend
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 20s
+      retries: 10
+    profiles: ["testing"]
+
+networks:
+  frontend:
+  backend:
+
+volumes:
+  mysql-data:
+  web-logs:
