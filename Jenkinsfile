@@ -18,7 +18,7 @@ pipeline {
         git branch: 'main', url: 'https://github.com/delaney653/food-tracker'
       }
     }
-    stage('Code Quality: Pylint & Black') {
+    stage('Code Quality: Black Check') {
         steps {
             script {
                 echo 'Checking code formatting with Black...'
@@ -34,7 +34,12 @@ pipeline {
                     echo Black check passed.
                 )
                 '''
-
+            }
+        }
+    }
+    stage('Code Quality: Pylint Check'){
+        steps {
+            script {
                 echo 'Checking with Pylint...'
                 // Fail the build if pylint score is below 8.0
                 bat '''
