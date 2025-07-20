@@ -74,19 +74,7 @@ pipeline {
                         )
                         exit /b 0
                         '''
-                        
-                        // verify reports were created
-                        bat '''
-                        if not exist reports\\junit.xml (
-                            echo "WARNING -- No test results found! Please check main build page."
-                        )
-                        if not exist reports\\coverage.xml (
-                            echo "WARNING -- No coverage report found! Please check main build page."
-                        )
-                        echo "Test reports generated successfully!"
-                        '''
-                        
-                    } catch (Exception e) {
+                        } catch (Exception e) {
                         echo "Test stage failed: ${e.getMessage()}"
                         currentBuild.result = 'FAILURE'
                         throw e
@@ -94,8 +82,27 @@ pipeline {
                         bat 'docker-compose --profile testing down --volumes --remove-orphans || true'
                         bat 'docker-compose down --volumes --remove-orphans || true'
                     }
+                       
+            }
+    }
+
+    stage('Verifying Test Reports were Generated'){
+        steps{
+            script{
+                 // verify reports were created
+                    bat '''
+                    if not exist reports\\junit.xml (
+                        echo "WARNING -- No test results found! Please check main build page."
+                    )
+                    if not exist reports\\coverage.xml (
+                        echo "WARNING -- No coverage report found! Please check main build page."
+                    )
+                    echo "Test reports generated successfully!"
+                    '''
+                    
                 }
             }
+        }
     }
         
     stage('Build Artifacts') {
