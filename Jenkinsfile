@@ -101,7 +101,6 @@ pipeline {
                     echo "Test reports generated successfully!"
                     '''
                     
-                }
             }
         }
     }
