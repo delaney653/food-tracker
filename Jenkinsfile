@@ -117,7 +117,7 @@ pipeline {
                     if not exist artifacts mkdir artifacts
                     echo "Exporting build artifacts..."
                     docker save -o artifacts/backend-image.tar digital-notebook-backend:latest || echo "Could not export backend image"
-                    '''
+                    ''' 
                     
                     echo 'Build artifacts generated successfully!'
                     
