@@ -26,7 +26,7 @@ pipeline {
                         bat '''
                         python -m venv %VENV%
                         call %VENV%\\Scripts\\activate
-                        pip install -r requirements.txt
+                        pip install black
                         black --check . --exclude venv
                         if %ERRORLEVEL% neq 0 (
                             echo.
@@ -45,10 +45,15 @@ pipeline {
                     label 'code-quality'
                 }
                 steps {
+                    unstash 'code'
                     script {
                         echo 'Checking with Pylint...'
                         // Fail the build if pylint score is below 8.0
                         bat '''
+                        python -m venv %VENV%
+                        call %VENV%\\Scripts\\activate
+                        pip install pylint
+                        pylint **/*.py --fail-under=8.0
                         if %ERRORLEVEL% neq 0 (
                             echo.
                             echo FAILURE -- Code quality issues detected with Pylint!
