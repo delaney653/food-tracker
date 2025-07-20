@@ -3,6 +3,7 @@ pipeline {
   
   environment{
     VENV = 'venv'
+    BUILD_TAG = "v1.0.${BUILD_NUMBER}"
   }
   stages{
     stage('Build Image'){
