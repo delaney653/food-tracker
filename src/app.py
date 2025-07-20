@@ -21,7 +21,7 @@ db = SQLAlchemy(app)
 
 
 class Meal(db.Model):
-    """Used to create a table that has 3 columns: an id as a primary key, 
+    """Used to create a table that has 3 columns: an id as a primary key,
     the description of a meal, and the rating of a meal."""
 
     __tablename__ = "meals"
@@ -41,7 +41,7 @@ def add_meal(description, rating):
 def home():
     """Renders home page based on what meals  have been previously selected"""
     meal_list = Meal.query.all()
-    # Rating options 
+    # Rating options
     ratings = ["Nasty", "Didn't really like it", "Okay", "Pretty Good", "DELICIOUS"]
 
     return render_template(
@@ -75,7 +75,7 @@ if __name__ == "__main__":
         for _ in range(10):
             try:
                 with db.engine.connect() as connection:
-                    connection.execute(db.text('SELECT 1'))
+                    connection.execute(db.text("SELECT 1"))
                 break
             except OperationalError:
                 print("Database not ready, retrying in 2s...")

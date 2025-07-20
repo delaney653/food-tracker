@@ -26,7 +26,7 @@ class FlaskTests(unittest.TestCase):
             for _ in range(10):
                 try:
                     with db.engine.connect() as connection:
-                        connection.execute(db.text('SELECT 1'))
+                        connection.execute(db.text("SELECT 1"))
                     break
                 except OperationalError:
                     print("Test database not ready, retrying in 1s...")
@@ -39,9 +39,9 @@ class FlaskTests(unittest.TestCase):
     def tearDown(self):
         # Cleans up database
         with app.app_context():
-        # Clear data instead of dropping tables
+            # Clear data instead of dropping tables
             with db.engine.connect() as connection:
-                connection.execute(db.text('DELETE FROM meals'))
+                connection.execute(db.text("DELETE FROM meals"))
             db.session.commit()
 
     def test_home_page_data(self):
@@ -66,23 +66,34 @@ class FlaskTests(unittest.TestCase):
         self.assertNotIn(b"Chicken and potatoes", response.data)
         self.assertNotIn(b": Okay", response.data)
 
-        self.app.post("/add", data={"meal": "fried macaroni bites", "rating": "DELICIOUS"})
+        self.app.post(
+            "/add", data={"meal": "fried macaroni bites", "rating": "DELICIOUS"}
+        )
         response = self.app.get("/")
         self.assertIn(b"fried macaroni bites", response.data)
         self.assertIn(b"DELICIOUS", response.data)
 
-        self.app.post("/add", data={"meal": "Pesto tortellini", "rating": "Pretty Good"})
+        self.app.post(
+            "/add", data={"meal": "Pesto tortellini", "rating": "Pretty Good"}
+        )
         response = self.app.get("/")
         self.assertIn(b"Pesto tortellini", response.data)
         self.assertIn(b"Pretty Good", response.data)
 
-        self.app.post("/add", data={"meal": "Taco Bell bean and cheese burrito", \
-                                    "rating": "Didn't really like it"})
+        self.app.post(
+            "/add",
+            data={
+                "meal": "Taco Bell bean and cheese burrito",
+                "rating": "Didn't really like it",
+            },
+        )
         response = self.app.get("/")
         self.assertIn(b"Taco Bell bean and cheese burrito", response.data)
         self.assertIn(b"Didn&#39;t really like it", response.data)
 
-        self.app.post("/add", data={"meal": "Bartlett tuna casserole", "rating": "Nasty"})
+        self.app.post(
+            "/add", data={"meal": "Bartlett tuna casserole", "rating": "Nasty"}
+        )
         response = self.app.get("/")
         self.assertIn(b"Bartlett tuna casserole", response.data)
         self.assertIn(b"Nasty", response.data)
@@ -96,8 +107,6 @@ class FlaskTests(unittest.TestCase):
         response = self.app.get("/")
         self.assertNotIn(b"fried macaroni bites", response.data)
         self.assertNotIn(b"/delete/5", response.data)
-
-
 
 
 if __name__ == "__main__":
