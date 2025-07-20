@@ -82,6 +82,7 @@ pipeline {
                         bat 'docker-compose --profile testing down --volumes --remove-orphans || true'
                         bat 'docker-compose down --volumes --remove-orphans || true'
                     }
+                }
                        
             }
     }
