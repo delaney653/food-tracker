@@ -9,6 +9,7 @@ pipeline {
         agent any
       steps{
         git branch: 'main', url: 'https://github.com/delaney653/food-tracker'
+        stash includes: '**/*', name: 'code'
       }
     }
     stage('Parallel Check'){
@@ -18,6 +19,7 @@ pipeline {
                     label 'code-quality'
                 }
                 steps {
+                    unstash 'code'
                     script {
                         echo 'Checking code formatting with Black...'
                         // Fail the build if code is not black-formatted
@@ -47,7 +49,6 @@ pipeline {
                         echo 'Checking with Pylint...'
                         // Fail the build if pylint score is below 8.0
                         bat '''
-                        docker run --rm -v %CD%:/app -w /app python:3.9 sh -c "pip install -r requirements.txt && find . -name '*.py' -not -path './venv/*' -not -path './migrations/*' -not -path './__pycache__/*' | xargs pylint --output-format=colorized --fail-under=8.0" 
                         if %ERRORLEVEL% neq 0 (
                             echo.
                             echo FAILURE -- Code quality issues detected with Pylint!
