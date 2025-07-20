@@ -9,7 +9,7 @@ pipeline {
         agent any
       steps{
         git branch: 'main', url: 'https://github.com/delaney653/food-tracker'
-        bat 'docker build -t flask-app:latest .'
+        bat 'docker build -t food-tracker:latest .'
         stash includes: '**/*', name: 'code'
       }
     }
@@ -21,8 +21,12 @@ pipeline {
                 }
                 steps {
                     unstash 'code'
-                    echo 'Checking code formatting with Black...'
-                    bat 'docker run --rm -v %CD%:/app -w /app flask-app:latest black --check .'
+                    bat 'docker run --rm -v "%cd%":/app -w /app food-tracker:latest black --check . '
+                }
+                post {
+                    failure {
+                        echo 'FAILURE -- Code quality issues detected with Black!'
+                    }
                 }
             }
             stage('Code Quality: Pylint Check'){
@@ -32,12 +36,12 @@ pipeline {
                 steps {
                     unstash 'code'
                     echo 'Checking with Pylint...'
-                    bat 'docker run --rm -v %CD%:/app -w /app flask-app:latest pylint **/*.py --fail-under=8.0'
+                    bat 'docker run --rm -v "%cd%":/app -w /app food-tracker:latest pylint **/*.py --fail-under=8.0'
                 }
                 post {
-                        failure {
-                            echo 'FAILURE -- Code quality issues detected with Pylint!'
-                        }
+                    failure {
+                        echo 'FAILURE -- Code quality issues detected with Pylint!'
+                    }
                 }
             }
         }
