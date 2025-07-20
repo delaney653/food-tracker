@@ -36,7 +36,7 @@ pipeline {
                 steps {
                     unstash 'code'
                     echo 'Checking with Pylint...'
-                    bat 'docker run --rm -v "%cd%":/app -w /app food-tracker:latest pylint . --fail-under=8.0'
+                    bat 'docker run --rm -v "%cd%":/app -w /app food-tracker:latest pylint src/ tests/ --fail-under=8.0'
                 }
                 post {
                     failure {
