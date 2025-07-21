@@ -96,7 +96,8 @@ services:
       - frontend
     working_dir: /src
     depends_on:
-    - mysql-test
+      mysql-test:
+        condition: service_healthy
     volumes:
       - web-logs:/app/logs
     healthcheck:
