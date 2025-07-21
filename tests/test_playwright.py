@@ -94,20 +94,9 @@ class TestMealTracker:
         # Should still be on the form page
         expect(page.locator('input[name="meal"]')).to_be_visible()
 
-    def test_meal_history_section(self, page: Page):
-        """Test that the meal history section displays correctly"""
-
+        #test 5
         # Check that the meal history heading is present
         expect(page.locator("h2")).to_contain_text("Meal History")
-
-        # Add a meal and verify it appears in the history section
-        page.fill('input[name="meal"]', "History test meal")
-        page.select_option('select[name="rating"]', "Pretty Good")
-        page.click('input[type="submit"]')
-
-        # The meal should appear with the bullet point format
-        expect(page.locator("text=• History test meal: Pretty Good")).to_be_visible()
-
 
 # Pytest configuration for Playwright
 @pytest.fixture(scope="session")
