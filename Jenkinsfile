@@ -54,7 +54,7 @@ pipeline {
                     unstash 'code'
                     echo 'Running SonarQube analysis...'
                     withSonarQubeEnv('SonarQube') {
-                        bat 'docker run --rm -v "%cd%":/usr/src -w /usr/src sonarsource/sonar-scanner-cli'
+                        bat 'docker run --rm -e SONAR_TOKEN=%SONAR_TOKEN% -v "%cd%":/usr/src -w /usr/src sonarsource/sonar-scanner-cli'
                     }
                 }
             }
