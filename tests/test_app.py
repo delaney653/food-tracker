@@ -39,7 +39,6 @@ class FlaskTests(unittest.TestCase):
     def tearDown(self):
         # Cleans up database
         with app.app_context():
-            # Clear data instead of dropping tables
             with db.engine.connect() as connection:
                 connection.execute(db.text("DELETE FROM meals"))
             db.session.commit()

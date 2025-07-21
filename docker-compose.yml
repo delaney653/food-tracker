@@ -6,7 +6,7 @@ services:
     networks:
     - frontend
     volumes:
-    - ./nginx.conf:/etc/nginx/nginx.conf:ro
+    - ./nginx.prod.conf:/etc/nginx/nginx.conf:ro
     depends_on:
       - backend
     healthcheck:
@@ -59,46 +59,97 @@ services:
       - "3306:3306"
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
-      interval: 30s
+      interval: 20s
       timeout: 5s
       retries: 5
-      start_period: 30s
     profiles: 
     - production
     - ''
    #testing services
+  proxy-test:
+    image: nginx:latest
+    ports: 
+    - "80:80"  
+    networks:
+    - frontend
+    volumes:
+    - ./nginx.test.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - backend-test
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    profiles: ["testing"]
   backend-test:
     build: .
     environment:
+      MYSQL_HOST: mysql-test
+      MYSQL_USER: root
+      MYSQL_PASSWORD: password
+      MYSQL_DB: test_meals
       ENV: testing
-    depends_on:
-      - mysql-test
     networks:
       - backend
+      - frontend
+    working_dir: /src
+    depends_on:
+    - mysql-test
     volumes:
-      - .:/app
-    working_dir: /app
-    command: sh -c "pip install pytest-cov && pytest --junitxml=junit.xml --cov=. --cov-report=xml:coverage.xml --cov-fail-under=80 -v tests/"
+      - web-logs:/app/logs
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/"]
+      interval: 10s
+      timeout: 5s
+      retries: 15
+      start_period: 40s
     profiles: ["testing"]
+    command: ["python", "app.py"]
+
 
   mysql-test:
     image: mysql:latest
-    environment:
-      MYSQL_ROOT_PASSWORD: password
-      MYSQL_DATABASE: test_meals
+    networks:
+      - backend
     volumes:
       - ./schema.sql:/docker-entrypoint-initdb.d/01-schema.sql
       - ./staging-init.sql:/docker-entrypoint-initdb.d/02-staging-init.sql
+    environment:
+      MYSQL_ROOT_PASSWORD: password
+      MYSQL_DATABASE: test_meals
     ports:
       - "3307:3306"
     tmpfs:
       - /var/lib/mysql
-    networks:
-      - backend
+    
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
-      timeout: 20s
+      interval: 10s
+      timeout: 5s
       retries: 10
+    profiles: ["testing"]
+  e2e-tests:
+    image: mcr.microsoft.com/playwright/python:latest
+    working_dir: /app
+    environment:
+      APP_URL: http://backend-test:5000
+      PLAYWRIGHT_BROWSERS_PATH: /ms-playwright
+    depends_on:
+      backend-test:
+        condition: service_healthy
+      mysql-test:
+        condition: service_healthy
+    networks:
+      - backend
+      - frontend
+    volumes:
+      - ./tests:/tests
+      - ./requirements.txt:/requirements.txt
+      - playwright-cache:/ms-playwright
+    #run tests
+    command: bash -c "playwright install --with-deps chromium && pip install -r /requirements.txt && pytest /tests/test_playwright.py -v --browser chromium  --junitxml=/tests/junit.xml""
     profiles: ["testing"]
 
 networks:
@@ -108,3 +159,4 @@ networks:
 volumes:
   mysql-data:
   web-logs:
+  playwright-cache:

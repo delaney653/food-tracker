@@ -3,6 +3,8 @@ flask_sqlalchemy
 pymysql
 cryptography
 pytest
+playwright
+pytest-playwright
 pytest-cov
 pylint
 black
