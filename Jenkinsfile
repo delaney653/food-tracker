@@ -70,7 +70,7 @@ pipeline {
                         echo "Copying test artifacts from container..."
                         bat '''
                         for /f %%i in ('docker-compose --profile testing ps -q backend-test') do (
-                            docker cp %%i:/app/junit.xml ./reports/junit.xml 2>nul || echo "Warning: junit.xml not found"
+                            docker cp %%i:/app/junit.xml ./reports/junit-%BUILD_NUMBER%.xml 2>nul || echo "Warning: junit.xml not found"
                         )
                         exit /b 0
                         '''
@@ -124,7 +124,7 @@ pipeline {
                     bat '''
                     if not exist artifacts mkdir artifacts
                     echo "Exporting build artifacts..."
-                    docker save -o artifacts/backend-image.tar food-tracker:%BUILD_NUMBER% || echo "Could not export backend image"
+                    docker save -o artifacts/backend-image-%BUILD_NUMBER%.tar food-tracker:%BUILD_NUMBER% || echo "Could not export backend image"
                     ''' 
                     
                     echo 'Build artifacts generated successfully!'
