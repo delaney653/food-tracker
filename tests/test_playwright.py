@@ -1,10 +1,11 @@
 """End-to-end tests for Meal Tracker Flask app using Playwright"""
+
 import os
 import pytest
 from playwright.sync_api import Page, expect
-import time
 
 APP_URL = os.environ.get("APP_URL", "http://localhost:5000")
+
 
 class TestMealTracker:
     """Playwright e23 tests for the Meal Tracker app"""
@@ -21,75 +22,75 @@ class TestMealTracker:
     def test_full_e2e_workflow(self, page: Page):
         """Complete end-to-end test simulating all features"""
 
-         #check that the page title contains "Meal Tracker"
+        # check that the page title contains "Meal Tracker"
         expect(page).to_have_title("Meal Tracker")
-        
-        #check that the main heading is visible
+
+        # check that the main heading is visible
         heading = page.locator("h1")
         expect(heading).to_contain_text("Meal Tracker")
-        
-        #Check that the form elements are present
+
+        # Check that the form elements are present
         expect(page.locator('input[name="meal"]')).to_be_visible()
         expect(page.locator('select[name="rating"]')).to_be_visible()
         expect(page.locator('input[type="submit"]')).to_be_visible()
-        
-        #test 1: Add meal
+
+        # test 1: Add meal
         page.fill('input[name="meal"]', "Chicken and potatoes")
         page.select_option('select[name="rating"]', "Okay")
         page.click('input[type="submit"]')
-        
+
         expect(page.locator("text=Chicken and potatoes: Okay")).to_be_visible()
-        
+
         # test 2: Delete the first meal
         # Find the <p> with the meal text, then go to its parent <div>, then the button
         meal_p = page.locator("p", has_text="Chicken and potatoes")
         meal_div = meal_p.locator("..")  # parent div
         delete_button = meal_div.locator('button[type="submit"]')
         delete_button.click()
-        
+
         # verify first meal is gone
         expect(page.locator("text=Chicken and potatoes")).not_to_be_visible()
-        
-        #test 3: Add multiple meals
+
+        # test 3: Add multiple meals
         meals_to_add = [
             ("fried macaroni bites", "DELICIOUS"),
             ("Pesto tortellini", "Pretty Good"),
             ("Taco Bell bean and cheese burrito", "Didn't really like it"),
-            ("Bartlett tuna casserole", "Nasty")
+            ("Bartlett tuna casserole", "Nasty"),
         ]
-        
+
         for meal, rating in meals_to_add:
             page.fill('input[name="meal"]', meal)
             page.select_option('select[name="rating"]', rating)
             page.click('input[type="submit"]')
-            
-            #verify all of the meals appear
+
+            # verify all of the meals appear
             expect(page.locator(f"text={meal}: {rating}")).to_be_visible()
-        
-        #test 4: delete specific meals
-        #delete "fried macaroni bites"
+
+        # test 4: delete specific meals
+        # delete "fried macaroni bites"
         mac_p = page.locator("p", has_text="fried macaroni bites")
         macaroni_div = mac_p.locator("..")  # parent div
         macaroni_delete = macaroni_div.locator('button[type="submit"]')
         macaroni_delete.click()
-        #verify it's gone
+        # verify it's gone
         expect(page.locator("text=fried macaroni bites")).not_to_be_visible()
-        
-        #verify other meals are still there
+
+        # verify other meals are still there
         expect(page.locator("text=Pesto tortellini")).to_be_visible()
         expect(page.locator("text=Taco Bell bean and cheese burrito")).to_be_visible()
         expect(page.locator("text=Bartlett tuna casserole")).to_be_visible()
 
-         # Try to submit without filling required fields
+        # Try to submit without filling required fields
         page.click('input[type="submit"]')
-        
+
         # The form should not submit and we should still be on the same page
         expect(page.locator('input[name="meal"]')).to_be_visible()
-        
+
         # Fill meal but not rating
         page.fill('input[name="meal"]', "Test meal")
         page.click('input[type="submit"]')
-        
+
         # Should still be on the form page
         expect(page.locator('input[name="meal"]')).to_be_visible()
 
