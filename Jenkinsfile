@@ -70,7 +70,7 @@ pipeline {
                         echo "Copying test artifacts from container..."
                         bat """
                         for /f %%i in ('docker-compose --profile testing ps -q backend-test') do (
-                            docker cp %%i:/app/junit.xml ./reports/junit-$BUILD_NUMBER.xml 2>nul || echo "Warning: junit.xml not found"
+                            docker cp %%i:/app/junit.xml ./reports/junit-${BUILD_NUMBER}.xml 2>nul || echo "Warning: junit.xml not found"
                         )
                         exit /b 0
                         """
