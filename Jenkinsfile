@@ -56,6 +56,11 @@ pipeline {
             }
         }
     }
+    stage('Load testing'){
+        steps{
+            bat 'k6 run test.js'
+        }
+    }
     stage('Run Tests') {
         agent any
             steps {
