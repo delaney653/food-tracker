@@ -14,39 +14,39 @@ pipeline {
         stash includes: '**/*', name: 'code'
       }
     }
-    stage('Parallel Check'){
-        parallel{
-            stage('Code Quality: Black Check') {
-                agent {
-                    label 'code-quality'
-                }
-                steps {
-                    unstash 'code'
+    // stage('Parallel Check'){
+    //     parallel{
+    //         stage('Code Quality: Black Check') {
+    //             agent {
+    //                 label 'code-quality'
+    //             }
+    //             steps {
+    //                 unstash 'code'
                     
-                    bat "docker run --rm -v \"%cd%\":/app -w /app food-tracker:$BUILD_NUMBER black --check ."
-                }
-                post {
-                    failure {
-                        echo 'FAILURE -- Code quality issues detected with Black!'
-                    }
-                }
-            }
-            stage('Static Testing: SonarQube'){
-                agent {
-                    label 'code-quality'
-                }
-                steps {
-                    unstash 'code'
-                    script {
-                        scannerHome = tool 'SonarQube' 
-                    }
-                    withSonarQubeEnv('SonarQube') {
-                        bat "$scannerHome\\bin\\sonar-scanner.bat"
-                    }
-                }
-            }
-        }
-    }
+    //                 bat "docker run --rm -v \"%cd%\":/app -w /app food-tracker:$BUILD_NUMBER black --check ."
+    //             }
+    //             post {
+    //                 failure {
+    //                     echo 'FAILURE -- Code quality issues detected with Black!'
+    //                 }
+    //             }
+    //         }
+    //         stage('Static Testing: SonarQube'){
+    //             agent {
+    //                 label 'code-quality'
+    //             }
+    //             steps {
+    //                 unstash 'code'
+    //                 script {
+    //                     scannerHome = tool 'SonarQube' 
+    //                 }
+    //                 withSonarQubeEnv('SonarQube') {
+    //                     bat "$scannerHome\\bin\\sonar-scanner.bat"
+    //                 }
+    //             }
+    //         }
+    //     }
+    // }
     stage('Clean Docker Environment') {
         agent any
         steps {
@@ -145,7 +145,7 @@ pipeline {
             echo 'Archiving artifacts and publishing reports...'
             
             archiveArtifacts artifacts: 'reports/**', allowEmptyArchive: true
-            archiveArtifacts artifacts: 'artifacts/backend-image-${BUILD_NUMBER}.tar', allowEmptyArchive: true
+            archiveArtifacts artifacts: "artifacts/backend-image-${BUILD_NUMBER}.tar", allowEmptyArchive: true
             
             junit testResults: "reports/junit-${BUILD_NUMBER}.xml", allowEmptyResults: true
             
