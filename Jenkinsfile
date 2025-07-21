@@ -75,9 +75,9 @@ pipeline {
                         exit /b 0
                         """
                         } catch (Exception e) {
-                        echo "Test stage failed: ${e.getMessage()}"
-                        bat 'docker-compose --profile testing logs backend-test'
-                        currentBuild.result = 'FAILURE'
+                            bat 'docker-compose --profile testing logs backend-test'
+                            echo "Test stage failed: ${e.getMessage()}"
+                            currentBuild.result = 'FAILURE'
                         throw e
                     } finally {
                         bat 'docker-compose --profile testing down --volumes --remove-orphans || true'
