@@ -12,6 +12,9 @@ pipeline {
         git branch: 'main', url: 'https://github.com/delaney653/food-tracker'
         bat "docker build -t food-tracker:${BUILD_NUMBER} -t food-tracker:latest ."
         stash includes: '**/*', name: 'code'
+
+        echo "DEBUG: BUILD_NUMBER is ${BUILD_NUMBER}"
+        echo "DEBUG: BUILD_TAG is ${BUILD_TAG}"
       }
     }
     stage('Parallel Check'){
