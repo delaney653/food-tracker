@@ -54,7 +54,7 @@ pipeline {
                     unstash 'code'
                     echo 'Running SonarQube analysis...'
                     withSonarQubeEnv('SonarQube') {
-                        bat "docker run --rm -v \"%cd%\":/app -w /app food-tracker:${BUILD_NUMBER} sonar-scanner"
+                        bat "docker run --rm -v \"%cd%\":/app -w /app food-tracker:$BUILD_NUMBER sonar-scanner"
                     }
                 }
             }
