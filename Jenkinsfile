@@ -38,7 +38,7 @@ pipeline {
                 steps {
                     unstash 'code'
                     script {
-                        def scannerHome = tool 'SonarQube' 
+                        scannerHome = tool 'SonarQube' 
                     }
                     withSonarQubeEnv('SonarQube') {
                         bat "$scannerHome\\bin\\sonar-scanner.bat"
