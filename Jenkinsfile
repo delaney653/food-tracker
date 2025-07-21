@@ -52,7 +52,6 @@ pipeline {
         steps {
             script {
                 bat 'docker-compose down --volumes --remove-orphans || true'
-                bat 'docker-compose --profile testing down --volumes --remove-orphans || true'
                 bat 'docker system prune -f || true'
             }
         }
@@ -77,6 +76,7 @@ pipeline {
                         """
                         } catch (Exception e) {
                         echo "Test stage failed: ${e.getMessage()}"
+                        bat 'docker-compose --profile testing logs backend-test
                         currentBuild.result = 'FAILURE'
                         throw e
                     } finally {
