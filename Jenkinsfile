@@ -121,7 +121,7 @@ pipeline {
                         exit /b 1
                     ) 
                     '''
-                    
+                    bat "docker images food-tracker"
                     bat """
                     if not exist artifacts mkdir artifacts
                     echo "Exporting build artifacts..."
