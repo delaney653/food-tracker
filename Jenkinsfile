@@ -145,7 +145,7 @@ pipeline {
             echo 'Archiving artifacts and publishing reports...'
             
             archiveArtifacts artifacts: 'reports/**', allowEmptyArchive: true
-            archiveArtifacts artifacts: "artifacts/backend-image-${BUILD_NUMBER}.tar", allowEmptyArchive: true
+            archiveArtifacts artifacts: "artifacts/**", allowEmptyArchive: true
             
             junit testResults: "reports/junit-${BUILD_NUMBER}.xml", allowEmptyResults: true
             
