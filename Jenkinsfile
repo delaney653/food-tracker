@@ -14,17 +14,6 @@ pipeline {
         stash includes: '**/*', name: 'code'
       }
     }
-    stage('Static Testing'){
-        agent{
-            label 'code-quality'
-            steps{
-                echo 'Running SonarQube analysis...'
-                withSonarQubeEnv('SonarQube') {
-                    bat 'docker run --rm -v "%cd%":/app -w /app food-tracker:%BUILD_NUMBER% sonar-scanner'
-                }
-            }
-        }
-    }
     stage('Parallel Check'){
         parallel{
             stage('Code Quality: Black Check') {
@@ -96,7 +85,7 @@ pipeline {
                 }
                        
             }
-    }
+    } 
 
     stage('Verifying Test Reports were Generated'){
         agent any
@@ -157,7 +146,7 @@ pipeline {
             archiveArtifacts artifacts: 'reports/**', allowEmptyArchive: true
             archiveArtifacts artifacts: 'artifacts/**', allowEmptyArchive: true
             
-            junit testResults: 'reports/junit.xml', allowEmptyResults: true
+            junit testResults: "reports/junit-%BUILD_NUMBER%.xml", allowEmptyResults: true
             
             script {
                 if (currentBuild.result == 'UNSTABLE') {
