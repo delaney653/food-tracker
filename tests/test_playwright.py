@@ -94,9 +94,10 @@ class TestMealTracker:
         # Should still be on the form page
         expect(page.locator('input[name="meal"]')).to_be_visible()
 
-        #test 5
+        # test 5
         # Check that the meal history heading is present
         expect(page.locator("h2")).to_contain_text("Meal History")
+
 
 # Pytest configuration for Playwright
 @pytest.fixture(scope="session")

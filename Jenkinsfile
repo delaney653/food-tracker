@@ -46,6 +46,18 @@ pipeline {
                     }
                 }
             }
+            stage('Static Testing: SonarQube'){
+                agent {
+                    label 'code-quality'
+                }
+                steps {
+                    unstash 'code'
+                    echo 'Running SonarQube analysis...'
+                    withSonarQubeEnv('SonarQube') {
+                        bat "docker run --rm -v \"%cd%\":/app -w /app food-tracker:${BUILD_NUMBER} sonar-scanner"
+                    }
+                }
+            }
         }
     }
     stage('Clean Docker Environment') {
