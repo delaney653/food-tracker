@@ -135,7 +135,7 @@ pipeline {
                     currentBuild.result = 'FAILURE'
                     throw e
                 }
-            }
+            } 
         }
     }
     }
