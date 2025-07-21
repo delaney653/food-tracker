@@ -94,7 +94,7 @@ pipeline {
             script{
                  // verify reports were created
                 bat """
-                if not exist reports\\junit-$BUILD_NUMBER.xml (
+                if not exist reports\\junit-${BUILD_NUMBER}.xml (
                     echo "WARNING -- No test results found! Please check main build page."
                 )
                 if not exist reports\\coverage.xml (
@@ -123,11 +123,9 @@ pipeline {
                     '''
                     
                     bat """
-                    echo "DEBUG: BUILD_NUMBER is $BUILD_NUMBER"
-                    echo "DEBUG: BUILD_TAG is $BUILD_TAG"
                     if not exist artifacts mkdir artifacts
                     echo "Exporting build artifacts..."
-                    docker save -o artifacts/backend-image-$BUILD_NUMBER.tar food-tracker:$BUILD_NUMBER || echo "Could not export backend image"
+                    docker save -o artifacts/backend-image-${BUILD_NUMBER}.tar food-tracker:$BUILD_NUMBER || echo "Could not export backend image"
                     dir artifacts"""
                     
                     echo 'Build artifacts generated successfully!'
