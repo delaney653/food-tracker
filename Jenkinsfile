@@ -70,7 +70,7 @@ pipeline {
                         echo "Copying test artifacts from container..."
                         bat """
                         for /f %%i in ('docker-compose --profile testing ps -q backend-test') do (
-                            docker cp %%i:/app/junit.xml ./reports/junit-${BUILD_NUMBER}.xml 2>nul || echo "Warning: junit.xml not found"
+                            docker cp %%i:/app/junit.xml ./reports/junit-$BUILD_NUMBER/.xml 2>nul || echo "Warning: junit.xml not found"
                         )
                         exit /b 0
                         """
@@ -94,7 +94,7 @@ pipeline {
             script{
                  // verify reports were created
                 bat """
-                if not exist reports\\junit-${BUILD_NUMBER}.xml (
+                if not exist reports\\junit-$BUILD_NUMBER/.xml (
                     echo "WARNING -- No test results found! Please check main build page."
                 )
                 if not exist reports\\coverage.xml (
@@ -125,7 +125,7 @@ pipeline {
                     bat """
                     if not exist artifacts mkdir artifacts
                     echo "Exporting build artifacts..."
-                    docker save -o artifacts/backend-image-${BUILD_NUMBER}.tar food-tracker:$BUILD_NUMBER || echo "Could not export backend image"
+                    docker save -o artifacts/backend-image-$BUILD_NUMBER/.tar food-tracker:$BUILD_NUMBER || echo "Could not export backend image"
                     dir artifacts"""
                     
                     echo 'Build artifacts generated successfully!'
@@ -147,7 +147,7 @@ pipeline {
             archiveArtifacts artifacts: 'reports/**', allowEmptyArchive: true
             archiveArtifacts artifacts: 'artifacts/**', allowEmptyArchive: true
             
-            junit testResults: "reports/junit-$BUILD_NUMBER.xml", allowEmptyResults: true
+            junit testResults: "reports/junit-$BUILD_NUMBER/.xml", allowEmptyResults: true
             
             script {
                 if (currentBuild.result == 'UNSTABLE') {
