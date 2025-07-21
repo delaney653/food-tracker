@@ -65,7 +65,7 @@ pipeline {
         agent any
             steps {
                 script { 
-                    try {
+                    try { 
                         bat 'if not exist reports mkdir reports'
 
                         bat '''
