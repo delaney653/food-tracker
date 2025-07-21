@@ -10,7 +10,7 @@ pipeline {
         agent any
       steps{
         git branch: 'main', url: 'https://github.com/delaney653/food-tracker'
-        bat 'docker build -t food-tracker:latest .'
+        bat 'docker build -t food-tracker:${BUILD_NUMBER} .'
         stash includes: '**/*', name: 'code'
       }
     }
@@ -22,7 +22,7 @@ pipeline {
                 }
                 steps {
                     unstash 'code'
-                    bat 'docker run --rm -v "%cd%":/app -w /app food-tracker:latest black --check . '
+                    bat 'docker run --rm -v "%cd%":/app -w /app food-tracker:${BUILD_NUMBER} black --check . '
                 }
                 post {
                     failure {
@@ -37,7 +37,7 @@ pipeline {
                 steps {
                     unstash 'code'
                     echo 'Checking with Pylint...'
-                    bat 'docker run --rm -v "%cd%":/app -w /app food-tracker:latest pylint src/ tests/ --fail-under=8.0'
+                    bat 'docker run --rm -v "%cd%":/app -w /app food-tracker:${BUILD_NUMBER} pylint src/ tests/ --fail-under=8.0'
                 }
                 post {
                     failure {
@@ -124,7 +124,7 @@ pipeline {
                     bat '''
                     if not exist artifacts mkdir artifacts
                     echo "Exporting build artifacts..."
-                    docker save -o artifacts/backend-image.tar digital-notebook-backend:latest || echo "Could not export backend image"
+                    docker save -o artifacts/backend-image.tar food-tracker:${BUILD_NUMBER} || echo "Could not export backend image"
                     ''' 
                     
                     echo 'Build artifacts generated successfully!'
