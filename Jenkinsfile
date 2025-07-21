@@ -93,15 +93,15 @@ pipeline {
         steps{
             script{
                  // verify reports were created
-                bat '''
-                if not exist reports\\junit.xml (
+                bat """
+                if not exist reports\\junit-${BUILD_NUMBER}.xml (
                     echo "WARNING -- No test results found! Please check main build page."
                 )
                 if not exist reports\\coverage.xml (
                     echo "WARNING -- No coverage report found! Please check main build page."
                 )
                 echo "Test reports generated successfully!"
-                '''         
+                """  
             }
         }
     }
@@ -119,7 +119,7 @@ pipeline {
                     docker images | findstr backend && echo "Docker image built successfully" || (
                         echo "FAILURE -- Docker image not found!"
                         exit /b 1
-                    )
+                    ) 
                     '''
                     
                     bat """
