@@ -37,9 +37,11 @@ pipeline {
                 }
                 steps {
                     unstash 'code'
-                    echo 'Running SonarQube analysis...'
+                    script {
+                        def scannerHome = tool 'SonarQube' 
+                    }
                     withSonarQubeEnv('SonarQube') {
-                        bat 'docker run --rm SONAR_TOKEN=%SONAR_TOKEN% -e SONAR_HOST_URL=%SONAR_HOST_URL% -v "%cd%":/usr/src -w /usr/src sonarsource/sonar-scanner-cli'
+                        bat "$scannerHome\\bin\\sonar-scanner.bat"
                     }
                 }
             }
