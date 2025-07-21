@@ -76,7 +76,7 @@ pipeline {
                         """
                         } catch (Exception e) {
                         echo "Test stage failed: ${e.getMessage()}"
-                        bat 'docker-compose --profile testing logs backend-test
+                        bat 'docker-compose --profile testing logs backend-test'
                         currentBuild.result = 'FAILURE'
                         throw e
                     } finally {
