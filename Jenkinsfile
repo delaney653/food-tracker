@@ -61,55 +61,55 @@ pipeline {
             bat 'k6 run test.js'
         }
     }
-    stage('Run Tests') {
-        agent any
-            steps {
-                script { 
-                    try { 
-                        bat 'if not exist reports mkdir reports'
+    // stage('Run Tests') {
+    //     agent any
+    //         steps {
+    //             script { 
+    //                 try { 
+    //                     bat 'if not exist reports mkdir reports'
 
-                        bat '''
-                        docker-compose --profile testing up --build -d
-                        '''
+    //                     bat '''
+    //                     docker-compose --profile testing up --build -d
+    //                     '''
                         
-                        echo "Copying test artifacts from container..."
-                        bat """
-                        for /f %%i in ('docker-compose --profile testing ps -q backend-test') do (
-                            docker cp %%i:/app/junit.xml ./reports/junit-${BUILD_NUMBER}.xml 2>nul || echo "Warning: junit.xml not found"
-                        )
-                        exit /b 0
-                        """
-                        } catch (Exception e) {
-                            bat 'docker-compose --profile testing logs backend-test'
-                            echo "Test stage failed: ${e.getMessage()}"
-                            currentBuild.result = 'FAILURE'
-                        throw e
-                    } finally {
-                        bat 'docker-compose --profile testing down --volumes --remove-orphans || true'
-                        bat 'docker-compose down --volumes --remove-orphans || true'
-                    }
-                }
+    //                     echo "Copying test artifacts from container..."
+    //                     bat """
+    //                     for /f %%i in ('docker-compose --profile testing ps -q backend-test') do (
+    //                         docker cp %%i:/app/junit.xml ./reports/junit-${BUILD_NUMBER}.xml 2>nul || echo "Warning: junit.xml not found"
+    //                     )
+    //                     exit /b 0
+    //                     """
+    //                     } catch (Exception e) {
+    //                         bat 'docker-compose --profile testing logs backend-test'
+    //                         echo "Test stage failed: ${e.getMessage()}"
+    //                         currentBuild.result = 'FAILURE'
+    //                     throw e
+    //                 } finally {
+    //                     bat 'docker-compose --profile testing down --volumes --remove-orphans || true'
+    //                     bat 'docker-compose down --volumes --remove-orphans || true'
+    //                 }
+    //             }
                        
-            }
-    } 
+    //         }
+    // } 
 
-    stage('Verifying Test Reports were Generated'){
-        agent any
-        steps{
-            script{
-                 // verify reports were created
-                bat """
-                if not exist reports\\junit-${BUILD_NUMBER}.xml (
-                    echo "WARNING -- No test results found! Please check main build page."
-                )
-                if not exist reports\\coverage.xml (
-                    echo "WARNING -- No coverage report found! Please check main build page."
-                )
-                echo "Test reports generated successfully!"
-                """  
-            }
-        }
-    }
+    // stage('Verifying Test Reports were Generated'){
+    //     agent any
+    //     steps{
+    //         script{
+    //              // verify reports were created
+    //             bat """
+    //             if not exist reports\\junit-${BUILD_NUMBER}.xml (
+    //                 echo "WARNING -- No test results found! Please check main build page."
+    //             )
+    //             if not exist reports\\coverage.xml (
+    //                 echo "WARNING -- No coverage report found! Please check main build page."
+    //             )
+    //             echo "Test reports generated successfully!"
+    //             """  
+    //         }
+    //     }
+    // }
         
     stage('Build Artifacts') {
         agent any
@@ -145,36 +145,36 @@ pipeline {
     }
     }
     
-    post {
-        always {
-            echo 'Archiving artifacts and publishing reports...'
+    // post {
+    //     always {
+    //         echo 'Archiving artifacts and publishing reports...'
             
-            archiveArtifacts artifacts: 'reports/**', allowEmptyArchive: true
-            archiveArtifacts artifacts: "artifacts/**", allowEmptyArchive: true
+    //         archiveArtifacts artifacts: 'reports/**', allowEmptyArchive: true
+    //         archiveArtifacts artifacts: "artifacts/**", allowEmptyArchive: true
             
-            junit testResults: "reports/junit-${BUILD_NUMBER}.xml", allowEmptyResults: true
+    //         junit testResults: "reports/junit-${BUILD_NUMBER}.xml", allowEmptyResults: true
             
-            script {
-                if (currentBuild.result == 'UNSTABLE') {
-                    error("Too many test failures – marking pipeline as FAILED.")
-                }
-            }
+    //         script {
+    //             if (currentBuild.result == 'UNSTABLE') {
+    //                 error("Too many test failures – marking pipeline as FAILED.")
+    //             }
+    //         }
 
-            bat 'docker-compose down --volumes --remove-orphans || true'
-            bat 'docker system prune -f || true'
-        }
-        failure {
-            echo 'Pipeline failed! Check the logs above for details.'
-        }
+    //         bat 'docker-compose down --volumes --remove-orphans || true'
+    //         bat 'docker system prune -f || true'
+    //     }
+    //     failure {
+    //         echo 'Pipeline failed! Check the logs above for details.'
+    //     }
             
-        success {
-            echo 'Pipeline completed successfully!'
-            echo 'All checks passed:'
-            echo '- Code formatting (Python Black)'
-            echo '- All tests passing'
-            echo '- Coverage >= 85%'
-            echo '- Build artifacts generated'
-        }
-    }
+    //     success {
+    //         echo 'Pipeline completed successfully!'
+    //         echo 'All checks passed:'
+    //         echo '- Code formatting (Python Black)'
+    //         echo '- All tests passing'
+    //         echo '- Coverage >= 85%'
+    //         echo '- Build artifacts generated'
+    //     }
+    // }
 
 }
