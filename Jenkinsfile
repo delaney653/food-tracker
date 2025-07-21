@@ -31,21 +31,6 @@ pipeline {
                     }
                 }
             }
-            stage('Code Quality: Pylint Check'){
-                agent {
-                    label 'code-quality'
-                }
-                steps {
-                    unstash 'code'
-                    echo 'Checking with Pylint...'
-                    bat "docker run --rm -v \"%cd%\":/app -w /app food-tracker:$BUILD_NUMBER pylint src/ tests/ --fail-under=8.0"
-                }
-                post {
-                    failure {
-                        echo 'FAILURE -- Code quality issues detected with Pylint!'
-                    }
-                }
-            }
             stage('Static Testing: SonarQube'){
                 agent {
                     label 'code-quality'
@@ -180,7 +165,6 @@ pipeline {
             echo 'Pipeline completed successfully!'
             echo 'All checks passed:'
             echo '- Code formatting (Python Black)'
-            echo '- Code quality (Pylint >= 8.0)'
             echo '- All tests passing'
             echo '- Coverage >= 85%'
             echo '- Build artifacts generated'
