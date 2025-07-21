@@ -52,6 +52,7 @@ pipeline {
         steps {
             script {
                 bat 'docker-compose down --volumes --remove-orphans || true'
+                bat 'docker-compose --profile testing down --volumes --remove-orphans || true'
                 bat 'docker system prune -f || true'
             }
         }
