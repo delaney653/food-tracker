@@ -14,6 +14,17 @@ pipeline {
         stash includes: '**/*', name: 'code'
       }
     }
+    stage('Static Testing'){
+        agent{
+            label 'code-quality'
+            steps{
+                echo 'Running SonarQube analysis...'
+                withSonarQubeEnv('SonarQube') {
+                    bat 'docker run --rm -v "%cd%":/app -w /app food-tracker:%BUILD_NUMBER% sonar-scanner'
+                }
+            }
+        }
+    }
     stage('Parallel Check'){
         parallel{
             stage('Code Quality: Black Check') {
