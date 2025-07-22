@@ -4,6 +4,7 @@ pipeline {
   environment{
     VENV = 'venv'
     BUILD_TAG = "v1.0.$BUILD_NUMBER"
+    IS_MAIN = "${env.BRANCH_NAME == 'main'}"
   }
   stages{
     stage('Build Image'){
@@ -32,6 +33,9 @@ pipeline {
                 }
             }
             stage('Static Testing: SonarQube'){
+                when {
+                    expression { env.BRANCH_NAME == 'main' }
+                }
                 agent {
                     label 'code-quality'
                 }
@@ -48,6 +52,9 @@ pipeline {
         }
     }
     stage("Wait for Quality Gate") {
+        when {
+            expression { env.BRANCH_NAME == 'main' }
+        }
         steps {
             timeout(time: 2, unit: 'MINUTES') {
                 waitForQualityGate abortPipeline: true
