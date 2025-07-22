@@ -80,42 +80,42 @@ pipeline {
     // }
     stage('Run Tests') {
         agent any
-            steps {
-                script { 
-                    try { 
-                        bat 'if not exist reports mkdir reports'
+        steps {
+            script { 
+                try { 
+                    bat 'if not exist reports mkdir reports'
 
-                        bat '''
-                        docker-compose --profile testing up --build -d --abort-on-container-exit 
-                        '''
-                        echo "==== MYSQL-TEST LOGS ===="
-                        bat 'docker logs food-tracker-mysql-test || exit /b 0'
+                    bat '''
+                    docker-compose --profile testing up --build -d --abort-on-container-exit 
+                    '''
+                    echo "==== MYSQL-TEST LOGS ===="
+                    bat 'docker logs food-tracker-mysql-test || exit /b 0'
 
-                        echo "==== E2E-TEST LOGS ===="
-                        bat 'docker logs food-tracker-e2e-test || exit /b 0'
+                    echo "==== E2E-TEST LOGS ===="
+                    bat 'docker logs food-tracker-e2e-test || exit /b 0'
 
-                        echo "==== BACKEND-TEST LOGS ===="
-                        bat 'docker logs food-tracker-backend-test || exit /b 0'
-                        
-                        echo "Copying test artifacts from container..."
-                        bat """
-                        for /f %%i in ('docker-compose --profile testing ps -q backend-test') do (
-                            docker cp %%i:/app/junit.xml ./reports/junit.xml 2>nul || echo "Warning: junit.xml not found"
-                        )
-                        exit /b 0
-                        """
-                        } catch (Exception e) {
-                            bat 'docker-compose --profile testing logs backend-test'
-                            echo "Test stage failed: ${e.getMessage()}"
-                            currentBuild.result = 'FAILURE'
-                        throw e
-                    } finally {
-                        bat 'docker-compose --profile testing down --volumes --remove-orphans || true'
-                        bat 'docker-compose down --volumes --remove-orphans || true'
-                    }
+                    echo "==== BACKEND-TEST LOGS ===="
+                    bat 'docker logs food-tracker-backend-test || exit /b 0'
+                    
+                    echo "Copying test artifacts from container..."
+                    bat """
+                    for /f %%i in ('docker-compose --profile testing ps -q backend-test') do (
+                        docker cp %%i:/app/junit.xml ./reports/junit.xml 2>nul || echo "Warning: junit.xml not found"
+                    )
+                    exit /b 0
+                    """
+                    } catch (Exception e) {
+                        bat 'docker-compose --profile testing logs backend-test'
+                        echo "Test stage failed: ${e.getMessage()}"
+                        currentBuild.result = 'FAILURE'
+                    throw e
+                } finally {
+                    bat 'docker-compose --profile testing down --volumes --remove-orphans || true'
+                    bat 'docker-compose down --volumes --remove-orphans || true'
                 }
-                       
             }
+                    
+        }
     } 
 
     stage('Verifying Test Reports were Generated'){
