@@ -17,7 +17,7 @@ export const options = {
 
 // Simulated user behavior
 export default function () {
-  let res = http.get("http:loaclhost:5000/"); // Corrected URL to localhost
+  let res = http.get("http://localhost:80/"); // Corrected URL to localhost
   // Validate response status
   check(res, { "status was 200": (r) => r.status == 200 });
   sleep(1);
