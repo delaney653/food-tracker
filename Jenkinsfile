@@ -34,7 +34,7 @@ pipeline {
             }
             stage('Static Testing: SonarQube'){
                 when {
-                    expression { env.BRANCH_NAME == 'main' }
+                    branch 'main'
                 }
                 agent {
                     label 'code-quality'
@@ -53,7 +53,7 @@ pipeline {
     }
     stage("Wait for Quality Gate") {
         when {
-            expression { env.BRANCH_NAME == 'main' }
+            branch 'main'
         }
         steps {
             timeout(time: 2, unit: 'MINUTES') {
