@@ -47,6 +47,13 @@ pipeline {
             }
         }
     }
+    stage("Wait for Quality Gate") {
+        steps {
+            timeout(time: 2, unit: 'MINUTES') {
+                waitForQualityGate abortPipeline: true
+            }
+        }
+    }
     stage('Clean Docker Environment') {
         agent any
         steps {
@@ -75,7 +82,7 @@ pipeline {
                         docker-compose --profile testing up --build -d
                         '''
 
-                        echo "docker logs mysql-test"
+                        echo "docker logs food-tracker-mysql-test"
                         
                         echo "Copying test artifacts from container..."
                         bat """
