@@ -86,7 +86,7 @@ pipeline {
                     bat 'if not exist reports mkdir reports'
 
                     bat '''
-                    docker-compose --profile testing up --build -d --abort-on-container-exit 
+                    docker-compose --profile testing up --build --abort-on-container-exit 
                     '''
                     echo "==== MYSQL-TEST LOGS ===="
                     bat 'docker logs food-tracker-mysql-test || exit /b 0'
