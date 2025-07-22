@@ -89,13 +89,13 @@ pipeline {
                         docker-compose --profile testing up --build -d
                         '''
                         echo "==== MYSQL-TEST LOGS ===="
-                        bat 'docker logs food-tracker-mysql-test-1 || exit /b 0'
+                        bat 'docker logs food-tracker-mysql-test || exit /b 0'
 
                         echo "==== E2E-TEST LOGS ===="
-                        bat 'docker logs food-tracker-e2e-test-1 || exit /b 0'
+                        bat 'docker logs food-tracker-e2e-test || exit /b 0'
 
                         echo "==== BACKEND-TEST LOGS ===="
-                        bat 'docker logs food-tracker-backend-test-1 || exit /b 0'
+                        bat 'docker logs food-tracker-backend-test || exit /b 0'
                         
                         echo "Copying test artifacts from container..."
                         bat """
