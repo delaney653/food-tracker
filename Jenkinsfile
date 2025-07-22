@@ -14,39 +14,39 @@ pipeline {
         stash includes: '**/*', name: 'code'
       }
     }
-    // stage('Parallel Check'){
-    //     parallel{
-    //         stage('Code Quality: Black Check') {
-    //             agent {
-    //                 label 'code-quality'
-    //             }
-    //             steps {
-    //                 unstash 'code'
+    stage('Parallel Check'){
+        parallel{
+            stage('Code Quality: Black Check') {
+                agent {
+                    label 'code-quality'
+                }
+                steps {
+                    unstash 'code'
                     
-    //                 bat "docker run --rm -v \"%cd%\":/app -w /app food-tracker:$BUILD_NUMBER black --check ."
-    //             }
-    //             post {
-    //                 failure {
-    //                     echo 'FAILURE -- Code quality issues detected with Black!'
-    //                 }
-    //             }
-    //         }
-    //         stage('Static Testing: SonarQube'){
-    //             agent {
-    //                 label 'code-quality'
-    //             }
-    //             steps {
-    //                 unstash 'code'
-    //                 script {
-    //                     scannerHome = tool 'SonarQube' 
-    //                 }
-    //                 withSonarQubeEnv('SonarQube') {
-    //                     bat "$scannerHome\\bin\\sonar-scanner.bat"
-    //                 }
-    //             }
-    //         }
-    //     }
-    // }
+                    bat "docker run --rm -v \"%cd%\":/app -w /app food-tracker:$BUILD_NUMBER black --check ."
+                }
+                post {
+                    failure {
+                        echo 'FAILURE -- Code quality issues detected with Black!'
+                    }
+                }
+            }
+            stage('Static Testing: SonarQube'){
+                agent {
+                    label 'code-quality'
+                }
+                steps {
+                    unstash 'code'
+                    script {
+                        scannerHome = tool 'SonarQube' 
+                    }
+                    withSonarQubeEnv('SonarQube') {
+                        bat "$scannerHome\\bin\\sonar-scanner.bat"
+                    }
+                }
+            }
+        }
+    }
     stage('Clean Docker Environment') {
         agent any
         steps {
@@ -56,14 +56,14 @@ pipeline {
             }
         }
     }
-    stage('Load testing'){
-        steps{
-            bat """ 
-                k6 run --out json=results.json test.js
-                k6-to-junit results.json -o reports/junit-${BUILD_NUMBER}.xml
-                """
-        }
-    }
+    // stage('Load testing'){
+    //     steps{
+    //         bat """ 
+    //             k6 run --out json=results.json test.js
+    //             k6-to-junit results.json -o reports/junit-${BUILD_NUMBER}.xml
+    //             """
+    //     }
+    // }
     stage('Run Tests') {
         agent any
             steps {
@@ -74,11 +74,13 @@ pipeline {
                         bat '''
                         docker-compose --profile testing up --build -d
                         '''
+
+                        echo "docker logs mysql-test"
                         
                         echo "Copying test artifacts from container..."
                         bat """
                         for /f %%i in ('docker-compose --profile testing ps -q backend-test') do (
-                            docker cp %%i:/app/junit.xml ./reports/junit-${BUILD_NUMBER}.xml 2>nul || echo "Warning: junit.xml not found"
+                            docker cp %%i:/app/junit.xml ./reports/junit.xml 2>nul || echo "Warning: junit.xml not found"
                         )
                         exit /b 0
                         """
@@ -102,7 +104,7 @@ pipeline {
             script{
                  // verify reports were created
                 bat """
-                if not exist reports\\junit-${BUILD_NUMBER}.xml (
+                if not exist reports\\junit.xml (
                     echo "WARNING -- No test results found! Please check main build page."
                 )
                 if not exist reports\\coverage.xml (
@@ -155,7 +157,7 @@ pipeline {
             archiveArtifacts artifacts: 'reports/**', allowEmptyArchive: true
             archiveArtifacts artifacts: "artifacts/**", allowEmptyArchive: true
             
-            junit testResults: "reports/junit-${BUILD_NUMBER}.xml", allowEmptyResults: true
+            junit testResults: "reports/junit.xml", allowEmptyResults: true
             
             slackSend channel: '#new-channel', color: '#2fff00ff', message: "Build #${BUILD_NUMBER} finished with status: ${currentBuild.currentResult} (<${env.BUILD_URL}|Details>)"
 
