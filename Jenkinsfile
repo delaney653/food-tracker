@@ -10,7 +10,7 @@ pipeline {
     stage('Build Image'){
         agent any
       steps{
-        git branch: 'main', url: 'https://github.com/delaney653/food-tracker'
+        checkout scm
         bat "docker build -t food-tracker:$BUILD_NUMBER -t food-tracker:latest ."
         stash includes: '**/*', name: 'code'
       }
