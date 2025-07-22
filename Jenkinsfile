@@ -10,7 +10,7 @@ pipeline {
     stage('Build Image'){
         agent any
       steps{
-        git branch: 'main', url: 'https://github.com/delaney653/food-tracker'
+        checkout scm
         bat "docker build -t food-tracker:$BUILD_NUMBER -t food-tracker:latest ."
         stash includes: '**/*', name: 'code'
       }
@@ -34,7 +34,7 @@ pipeline {
             }
             stage('Static Testing: SonarQube'){
                 when {
-                    expression { env.BRANCH_NAME == 'main' }
+                    branch 'main'
                 }
                 agent {
                     label 'code-quality'
@@ -47,13 +47,13 @@ pipeline {
                     withSonarQubeEnv('SonarQube') {
                         bat "$scannerHome\\bin\\sonar-scanner.bat"
                     }
-                }
+                } 
             }
         }
     }
     stage("Wait for Quality Gate") {
         when {
-            expression { env.BRANCH_NAME == 'main' }
+            branch 'main'
         }
         steps {
             timeout(time: 2, unit: 'MINUTES') {
@@ -88,8 +88,14 @@ pipeline {
                         bat '''
                         docker-compose --profile testing up --build -d
                         '''
+                        echo "==== MYSQL-TEST LOGS ===="
+                        bat 'docker logs food-tracker-mysql-test-1 || exit /b 0'
 
-                        echo "docker logs food-tracker-mysql-test"
+                        echo "==== E2E-TEST LOGS ===="
+                        bat 'docker logs food-tracker-e2e-test-1 || exit /b 0'
+
+                        echo "==== BACKEND-TEST LOGS ===="
+                        bat 'docker logs food-tracker-backend-test-1 || exit /b 0'
                         
                         echo "Copying test artifacts from container..."
                         bat """
