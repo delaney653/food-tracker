@@ -169,7 +169,7 @@ pipeline {
             bat 'docker system prune -f || true'
         }
         failure {
-            slackSend channel: '#your-channel', color: 'danger', message: " Build *#${BUILD_NUMBER}* failed! (<${env.BUILD_URL}|View Logs>)"
+            slackSend channel: '#new-channel', color: 'danger', message: " Build *#${BUILD_NUMBER}* failed! (<${env.BUILD_URL}|View Logs>)"
             echo 'Pipeline failed! Check the logs above for details.'
         }
             
