@@ -58,7 +58,7 @@ pipeline {
     }
     stage('Load testing'){
         steps{
-            bat """
+            bat """ 
                 k6 run --out json=results.json test.js
                 k6-to-junit results.json -o reports/junit-${BUILD_NUMBER}.xml
                 """
