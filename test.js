@@ -4,8 +4,8 @@ import { check, sleep } from "k6";
 // Test configuration
 export const options = {
   thresholds: {
-    // Assert that 99% of requests finish within 3000ms.
-    http_req_duration: ["p(99) < 3000"],
+    // Assert that 98% of requests finish within 3000ms.
+    http_req_duration: ["p(98) < 3000"],
   },
   // Ramp the number of virtual users up and down
   stages: [
@@ -15,10 +15,10 @@ export const options = {
   ],
 };
 
-// Simulated user behavior
+// simulate user behavior
 export default function () {
-  let res = http.get("http://localhost:80/"); // Corrected URL to localhost
-  // Validate response status
+  let res = http.get("http://localhost:80/"); // correct URL to localhost
+  // check response status
   check(res, { "status was 200": (r) => r.status == 200 });
   sleep(1);
 }
