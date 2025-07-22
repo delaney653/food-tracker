@@ -68,6 +68,7 @@ services:
    #testing services
   proxy-test:
     image: nginx:latest
+    container_name: food-tracker-proxy-test
     ports: 
     - "80:80"  
     networks:
@@ -91,6 +92,7 @@ services:
       MYSQL_PASSWORD: password
       MYSQL_DB: test_meals
       ENV: testing
+    container_name: food-tracker-backend-test
     networks:
       - backend
       - frontend
@@ -112,6 +114,7 @@ services:
 
   mysql-test:
     image: mysql:latest
+    container_name: food-tracker-mysql-test
     networks:
       - backend
     volumes:
@@ -133,6 +136,7 @@ services:
     profiles: ["testing"]
   e2e-tests:
     image: mcr.microsoft.com/playwright/python:latest
+    container_name: food-tracker-e2e-test
     working_dir: /app
     environment:
       APP_URL: http://backend-test:5000
