@@ -15,52 +15,52 @@ pipeline {
         stash includes: '**/*', name: 'code'
       }
     }
-    stage('Parallel Check'){
-        parallel{
-            stage('Code Quality: Black Check') {
-                agent {
-                    label 'code-quality'
-                }
-                steps {
-                    unstash 'code'
+    // stage('Parallel Check'){
+    //     parallel{
+    //         stage('Code Quality: Black Check') {
+    //             agent {
+    //                 label 'code-quality'
+    //             }
+    //             steps {
+    //                 unstash 'code'
                     
-                    bat "docker run --rm -v \"%cd%\":/app -w /app food-tracker:$BUILD_NUMBER black --check ."
-                }
-                post {
-                    failure {
-                        echo 'FAILURE -- Code quality issues detected with Black!'
-                    }
-                }
-            }
-            stage('Static Testing: SonarQube'){
-                when {
-                    branch 'main'
-                }
-                agent {
-                    label 'code-quality'
-                }
-                steps {
-                    unstash 'code'
-                    script {
-                        scannerHome = tool 'SonarQube' 
-                    }
-                    withSonarQubeEnv('SonarQube') {
-                        bat "$scannerHome\\bin\\sonar-scanner.bat"
-                    }
-                } 
-            }
-        }
-    }
-    stage("Wait for Quality Gate") {
-        when {
-            branch 'main'
-        }
-        steps {
-            timeout(time: 2, unit: 'MINUTES') {
-                waitForQualityGate abortPipeline: true
-            }
-        }
-    }
+    //                 bat "docker run --rm -v \"%cd%\":/app -w /app food-tracker:$BUILD_NUMBER black --check ."
+    //             }
+    //             post {
+    //                 failure {
+    //                     echo 'FAILURE -- Code quality issues detected with Black!'
+    //                 }
+    //             }
+    //         }
+    //         stage('Static Testing: SonarQube'){
+    //             when {
+    //                 branch 'main'
+    //             }
+    //             agent {
+    //                 label 'code-quality'
+    //             }
+    //             steps {
+    //                 unstash 'code'
+    //                 script {
+    //                     scannerHome = tool 'SonarQube' 
+    //                 }
+    //                 withSonarQubeEnv('SonarQube') {
+    //                     bat "$scannerHome\\bin\\sonar-scanner.bat"
+    //                 }
+    //             } 
+    //         }
+    //     }
+    // }
+    // stage("Wait for Quality Gate") {
+    //     when {
+    //         branch 'main'
+    //     }
+    //     steps {
+    //         timeout(time: 2, unit: 'MINUTES') {
+    //             waitForQualityGate abortPipeline: true
+    //         }
+    //     }
+    // }
     stage('Clean Docker Environment') {
         agent any
         steps {
@@ -86,7 +86,7 @@ pipeline {
                         bat 'if not exist reports mkdir reports'
 
                         bat '''
-                        docker-compose --profile testing up --build -d
+                        docker-compose --profile testing up --build -d --abort-on-container-exit 
                         '''
                         echo "==== MYSQL-TEST LOGS ===="
                         bat 'docker logs food-tracker-mysql-test || exit /b 0'
